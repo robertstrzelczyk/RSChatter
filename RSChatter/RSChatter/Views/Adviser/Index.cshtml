@@ -1,0 +1,18 @@
+﻿@model List<RSChatter.Models.Client>
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Oczekujący klienci</h2>
+
+<ul>
+    @foreach (var client in Model)
+    {
+        <li>@client.Name <button class="btn-sm btn-primary" data-connection-id="@client.ConnectionId" > Rozmawiaj</button> </li>
+    }
+</ul>
+
+
+
+
+
