@@ -10,18 +10,26 @@ using RSChatter.Models.QnAMaker;
 
 namespace RSChatter.SignalR.Hubs
 {
-    public class ChatHub: Hub
+    public class SimpleChatHub : Hub
     {
-        public static List<Adviser> SignalRClients = new List<Adviser>();
+        public static List<Adviser> SignalRClients = new List<Adviser>()
+        {
+            new Adviser(){Login="jan.kowalski", AdvisorType = AdvisorType.BusinessAdvisor, Name = "Jan Kowalski"}
+        };
+
+        public SimpleChatHub()
+        { 
+            //Clients.Users = SignalRClient
+        }
 
         public void Send(string name, string message)
         {
             var id = Context.ConnectionId;
 
-            if (SignalRClients.Count(x => x.ConnectionId == id) == 0)
-            {
-                SignalRClients.Add(new Adviser { ConnectionId = id, Name = name });
-            }
+            //if (SignalRClients.Count(x => x.ConnectionId == id) == 0)
+            //{
+            //    SignalRClients.Add(new Client { ConnectionId = id, Name = name });
+            //}
 
             Clients.All.addNewMessageToPage(name, message);
 
@@ -34,18 +42,13 @@ namespace RSChatter.SignalR.Hubs
 
             var result = JsonConvert.DeserializeObject<QnAMakerModel>(response.Content);
 
-            var answear = result.Answers.OrderByDescending(t => t.Score).FirstOrDefault();
-            if (answear != null)
-            {
-                Clients.All.addNewMessageToPage("Bot", answear.Answer);
-            }
+
+            Clients.All.addNewMessageToPage("Bot", "");
+
+
 
 
         }
 
-        public List<Adviser> GetAllActiveConnections()
-        {
-            return SignalRClients.ToList();
-        }
     }
 }

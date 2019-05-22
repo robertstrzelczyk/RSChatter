@@ -1,0 +1,78 @@
+﻿@model RSChatter.Models.SimpleChatModel
+@{
+    ViewBag.Title = "Symulacja ";
+}
+
+<style>
+    div.panel-body {
+        overflow: scroll;
+        background: white;
+    }
+</style>
+<h2>Symulacja doboru doradcy - FIFO</h2>
+<div class="chat-panel panel panel-default">
+    <div class="panel-heading">
+        Chat
+        <i class="fa fa-paper-plane fa-fw"></i>
+    </div>
+    <!-- /.panel-heading -->
+    <div class="panel-body" id="chat" style="height:250px;">
+        <input type="hidden" id="displayname" />
+
+        <p id="discussion">
+            @if (Model.Adviser != null)
+            {
+                <div style="color: black; text-align: right;">
+                    <strong>
+                        <img style="height: 64px" src="~/Content/support.png">
+                    </strong> <strong>@Model.Adviser.AdvisorName</strong>: @Model.Adviser.AdvisorName w czym mogę pomóc.
+                </div>
+                <div style="color: black; text-align: left;">
+                    <strong>
+                        <img style="height: 64px" src="~/Content/user.png">
+                    </strong> <strong>@Model.User.Name</strong>: @Model.User.Message.
+                </div>
+                <div style="padding-top: 48px; padding-bottom: 16px;">
+                    @if (Model.Adviser.AdvisorType == Model.User.Type)
+                    {
+                        <div style="color:green">&#8730;</div>
+                    }
+                    else
+                    {
+                        <div style="color:red">&#8855;</div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div style="color: black; text-align: right;">
+                    <img style="height: 64px" src="~/Content/support.png">
+                    Niestety ale wszyscy asi doradcy są zajęci. Proszę czekać.
+                </div>
+            }
+        </p>
+    </div>
+    <!-- /.panel-body -->
+    <div class="panel-footer">
+        <div class="input-group">
+            <input id="message" type="text" name="message" class="form-control input-sm" placeholder="Wpisz swoją wiadomość..." />
+
+            <span class="input-group-btn">
+                <input type="button" class="btn btn-error " id="end-chat" value="Zakończ">
+                <input type="button" class="btn btn-warning" id="sendmessage" value="Wyślij">
+            </span>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function() {
+        $(document).on("click",
+            "#end-chat",
+            function() {
+                $.post("/fifochat/endchat", { login: '@Html.Raw(Model.Adviser.Login)' }).done(function (data) {
+                    window.location.href = data;
+                });
+            });
+    });
+</script>

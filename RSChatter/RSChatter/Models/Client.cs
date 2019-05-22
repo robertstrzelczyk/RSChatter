@@ -5,9 +5,17 @@ using System.Web;
 
 namespace RSChatter.Models
 {
-    public class Client
+    public class Adviser
     {
         public string ConnectionId { get; set; }
         public string Name { get; set; }
+
+        public string Login { get; set; }
+
+        public AdvisorType AdvisorType { get; set; }
+
+        public string AdvisorName { get; set; }
+
+        public bool IsBusy { get; set; }
     }
 }

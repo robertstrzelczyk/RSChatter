@@ -1,0 +1,24 @@
+﻿@model RSChatter.Models.SimpleChatUser
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Fifo - symulacja</h2>
+
+@using (Html.BeginForm("Chat", "FifoChat", FormMethod.Get))
+{
+    <div class="form-group">
+        <label for="name">Nazwa użytkownika</label>
+        @Html.TextBoxFor(t => t.Name, new { @class = "form-control", placeholder = "Wpisz nazwę użytkownika" })
+    </div>
+    <div class="form-group">
+        <label for="message">Wiadomość</label>
+        @Html.TextAreaFor(t => t.Message, new { @class = "form-control", placeholder = "Opisz swój problem" })
+    </div>
+    <div class="form-group">
+        <label for="advisorType">Typ Doradcy z jakim chcesz rozmawiąć</label>
+        @Html.EnumDropDownListFor(model => model.Type, new { @class = "form-control" })
+
+    </div>
+    <button type="submit" class="btn btn-primary">Skontanktuj się</button>
+}
