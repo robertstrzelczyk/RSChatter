@@ -32,6 +32,8 @@ namespace RSChatter.Controllers
 
         };
 
+        private static Queue<SimpleChatUser> Queue = new Queue<SimpleChatUser>();
+
         public ActionResult Index()
         {
             return View();
@@ -44,14 +46,32 @@ namespace RSChatter.Controllers
             var model = new SimpleChatModel();
             model.User = user;
 
-            Advisers = Advisers.Where(t => t.IsBusy == false).ToList();
-            var index = new Random().Next(1,Advisers.Count);
+            var advisers = Advisers.Where(t => t.IsBusy == false).ToList();
+            var index = new Random().Next(1, advisers.Count+1)-1;
 
-            if (Advisers.Count > index)
+            if (advisers.Count > 0)
             {
-                model.Adviser = Advisers[index];
-                model.Adviser.IsBusy = true;
+                if (Queue.Count>0)
+                {
+                    var queueUser = Queue.Peek();
+                    if (queueUser.Type == model.Adviser.AdvisorType && queueUser.Name==user.Name)
+                    {
+                        model.Adviser = advisers[index];
+                        model.Adviser.IsBusy = true;
+                        Queue.Dequeue();
+                    }
+                }
+                else
+                {
+                    model.Adviser = advisers[index];
+                    model.Adviser.IsBusy = true;
+                }
 
+
+            }
+            else
+            {
+                Queue.Enqueue(user);
             }
 
             return View(model);

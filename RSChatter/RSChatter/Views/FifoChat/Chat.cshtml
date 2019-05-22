@@ -70,7 +70,7 @@
         $(document).on("click",
             "#end-chat",
             function() {
-                $.post("/fifochat/endchat", { login: '@Html.Raw(Model.Adviser.Login)' }).done(function (data) {
+                $.post("/fifochat/endchat", { login: '@Html.Raw(Model.Adviser?.Login)' }).done(function (data) {
                     window.location.href = data;
                 });
             });
