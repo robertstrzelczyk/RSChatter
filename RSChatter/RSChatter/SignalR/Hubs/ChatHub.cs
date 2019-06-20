@@ -13,6 +13,9 @@ namespace RSChatter.SignalR.Hubs
     public class ChatHub: Hub
     {
         public static List<Adviser> SignalRClients = new List<Adviser>();
+        private int _answerThresholdMax = 100;
+        private int _answerThresholdMMin = 90;
+        private int _minThreshold = 50;
 
         public void Send(string name, string message)
         {
@@ -25,23 +28,40 @@ namespace RSChatter.SignalR.Hubs
 
             Clients.All.addNewMessageToPage(name, message);
 
-            var client = new RestClient("https://rschatbot.azurewebsites.net/qnamaker");
-            var request = new RestRequest("/knowledgebases/900dd98e-4901-4140-9f0b-a2c7cb21b53f/generateAnswer", Method.POST);
-            request.AddHeader("authorization", "EndpointKey 91522118-9724-4391-82d9-c7cb11f2f08c");
+            var answear = GetAnswearFromBot(message);
+            int type = 0;
+            answear.Metadata.FirstOrDefault(t => Int32.TryParse(t.Value, out type));
+            if (answear != null)
+            {
+                if (answear.Score >= _answerThresholdMMin && answear.Score <= _answerThresholdMax)
+                {
+                    Clients.All.addNewMessageToPage("Bot", $"{(AdvisorType)type} | {answear.Score} | {answear.Answer}");
+                } 
+                else if (answear.Score > _minThreshold)
+                {
+                    Clients.All.addNewMessageToPage("Bot", $"{(AdvisorType)type} | {answear.Score} | {answear.Answer}");
+                }
+
+                Clients.All.addNewMessageToPage("Bot", $"{(AdvisorType)type} | {answear.Score} | {answear.Answer}");
+            }
+
+
+        }
+
+        public Answers GetAnswearFromBot(string message)
+        {
+            var client = new RestClient("https://rschatter.azurewebsites.net/qnamaker");
+            var request = new RestRequest("/knowledgebases/c215c7ca-cc53-488c-a131-1de6bc06d62c/generateAnswer", Method.POST);
+            request.AddHeader("authorization", "EndpointKey 83f79251-cd6e-4481-ba64-eb5229a60413");
             request.AddHeader("Content-Type", "application/json");
             request.AddParameter("application/json", "{\"question\": \"" + message + "\"}", ParameterType.RequestBody);
             var response = client.Execute(request);
 
             var result = JsonConvert.DeserializeObject<QnAMakerModel>(response.Content);
 
-            var answear = result.Answers.OrderByDescending(t => t.Score).FirstOrDefault();
-            if (answear != null)
-            {
-                Clients.All.addNewMessageToPage("Bot", answear.Answer);
-            }
-
-
+            return result.Answers.OrderByDescending(t => t.Score).FirstOrDefault();
         }
+
 
         public List<Adviser> GetAllActiveConnections()
         {
